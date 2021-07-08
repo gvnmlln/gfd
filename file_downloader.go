@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"dpb"
 	"flag"
 	"fmt"
 	"io"
@@ -13,11 +14,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
-	"dpb"
+	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 const tmp = ".tmp"
+const refreshRate = time.Millisecond * 100
 
 // DownloadFile downloads a file from the provided URL to the provided filepath
 func DownloadFile(filepath string, url string) error {
@@ -148,6 +151,35 @@ func DownloadURLs(urls []string, targetDirectory string) {
 		}
 		fmt.Println("Finished downloading:", fileName)
 	}
+}
+
+type WriteCounter struct {
+	bytesRead   int
+	progressBar *pb.ProgressBar
+}
+
+func NewWriteCounter(total int) *WriteCounter {
+	bar := pb.New(total)
+	bar.SetRefreshRate(refreshRate)
+	bar.ShowTimeLeft = true
+	bar.SetUnits(pb.U_BYTES)
+	return &WriteCounter{
+		progressBar: bar,
+	}
+}
+
+func (writeCounter *WriteCounter) Write(p []byte) (int, error) {
+	writeCounter.bytesRead += len(p)
+	writeCounter.progressBar.Set(writeCounter.bytesRead)
+	return writeCounter.bytesRead, nil
+}
+
+func (writeCounter *WriteCounter) Start() {
+	writeCounter.progressBar.Start()
+}
+
+func (writeCounter *WriteCounter) Finish() {
+	writeCounter.progressBar.Finish()
 }
 
 func main() {
