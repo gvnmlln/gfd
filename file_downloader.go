@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"dpb"
 	"flag"
 	"fmt"
 	"io"
@@ -39,7 +38,7 @@ func DownloadFile(filepath string, url string) error {
 
 	// Get the file size and use it to initialise the counter
 	fileSize, _ := strconv.Atoi(response.Header.Get("Content-Length"))
-	counter := dpb.NewWriteCounter(fileSize)
+	counter := NewWriteCounter(fileSize)
 	counter.Start()
 	if _, err = io.Copy(out, io.TeeReader(response.Body, counter)); err != nil {
 		out.Close()
