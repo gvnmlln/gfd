@@ -19,7 +19,6 @@ import (
 
 const tmp = ".tmp"
 
-
 // DownloadFile downloads a file from the provided URL to the provided filepath
 func DownloadFile(filepath string, url string) error {
 	// Create a temp file
@@ -35,6 +34,7 @@ func DownloadFile(filepath string, url string) error {
 	}
 	defer response.Body.Close()
 
+	// Get the file size and use it to initialise the counter
 	fileSize, _ := strconv.Atoi(response.Header.Get("Content-Length"))
 	counter := dpb.NewWriteCounter(fileSize)
 	counter.Start()
@@ -58,7 +58,9 @@ func ParseFileName(filePath string) (string, string) {
 	return fileNameAndExt, fileNameWithOutExt
 }
 
-// ParseFlagsAndArgs parses the CLI flags and args to string values and a
+
+
+// ParseFlagsAndArgs parses the CLI flags and args to string values and returns them as string values and an array respectively
 func ParseFlagsAndArgs() (*string, *string, []string) {
 	workingDirectory, err := os.Getwd()
 	if err != nil {
@@ -66,7 +68,7 @@ func ParseFlagsAndArgs() (*string, *string, []string) {
 	}
 
 	// Flags
-	// dir defaults to the current directory if not chosen as an option 
+	// dir defaults to the current directory if not chosen as an option
 	targetDirectory := flag.String("dir", workingDirectory, "the directory you want the file to be downloaded to")
 	// list default value is empty
 	urlTxt := flag.String("list", "", "a text file containing a list of urls")
@@ -127,7 +129,7 @@ func DownloadURLs(urls []string, targetDirectory string) {
 			fmt.Printf("Cannot download file from \"%s\" as it is not a valid URL.\n", u)
 			continue
 		}
-		
+
 		fileName, fileRootName := ParseFileName(u)
 		downloadTargetFilePath := path.Join(targetDirectory, fileRootName, fileName)
 		downloadDirectory := path.Dir(downloadTargetFilePath)
@@ -135,14 +137,16 @@ func DownloadURLs(urls []string, targetDirectory string) {
 		// Check the file doesn't already exist at the target filepath
 		fmt.Println("Downloading:", fileName)
 		if !FileExists(downloadDirectory) {
-			os.Mkdir(downloadDirectory, 0777)
+			err := os.MkdirAll(downloadDirectory, 0755)
+			if err != nil {
+				log.Panicln(err)
+			}
 		}
 
 		// Check if the file was downloaded successfully, throw an error if not
 		err := DownloadFile(downloadTargetFilePath, u)
 		if err != nil {
-			fmt.Println(err)
-			panic(err)
+			log.Panicln(err)
 		}
 		fmt.Println("Finished downloading:", fileName)
 	}
@@ -164,9 +168,7 @@ func main() {
 	// If a URL list text file is provided, add the URLs to the list to be downloaded
 	if urlList != "" && FileExists(urlList) {
 		urlsFromList, _ := ParseURLsFromTextFile(urlList)
-		for _, u := range urlsFromList {
-			urls = append(urls, u)
-		}
+		urls = append(urls, urlsFromList...)
 	}
 
 	// Download the URLs
