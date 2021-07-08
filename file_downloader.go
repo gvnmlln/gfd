@@ -58,8 +58,6 @@ func ParseFileName(filePath string) (string, string) {
 	return fileNameAndExt, fileNameWithOutExt
 }
 
-
-
 // ParseFlagsAndArgs parses the CLI flags and args to string values and returns them as string values and an array respectively
 func ParseFlagsAndArgs() (*string, *string, []string) {
 	workingDirectory, err := os.Getwd()
