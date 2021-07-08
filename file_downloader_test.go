@@ -1,11 +1,14 @@
 package main
 
 import (
+	"os"
 	"reflect"
 	"testing"
 )
 
 const testResourcesDir = "test-resources/"
+
+var wd, _ = os.Getwd()
 
 func TestParseFileName(t *testing.T) {
 	type args struct {
@@ -95,7 +98,7 @@ func TestExists(t *testing.T) {
 		want bool
 	}{
 		{name: "test if this file exist", args: args{filepath: "file_downloader_test.go"}, want: true},
-		{name: "test if home directory exists", args: args{filepath: "/Users/gavanm/"}, want: true},
+		{name: "test if home directory exists", args: args{filepath: wd}, want: true},
 		{name: "invalid filepath", args: args{filepath: "hello world"}, want: false},
 	}
 	for _, tt := range tests {
