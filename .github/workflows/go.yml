@@ -17,9 +17,6 @@ jobs:
         with:
           go-version: 1.16
 
-      - name: Set GO111MODULE to off
-        run: go env -w GO111MODULE=off
-
       - name: Build
         run: go build -v ./file_downloader.go
 
