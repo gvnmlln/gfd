@@ -9,8 +9,8 @@ This project requires Go in order to build it from the source code. If you don't
 
 Once you have Go installed on your machine:
 1. Download the source code from this repository.
-2. Run ```go build file_downloader``` in the directory in source code directory.
-This will create a binary file that you can use in the CLI to download URLs.
+2. Run ```go build file_downloader.go``` in the source code directory.
+This will create a binary file ```file_downloader``` that you can use in the CLI to download URLs.
 
 To download one or more URLs simply run:
 Run ```./file_downloader <URL_1> <URL_2>```
